@@ -195,7 +195,6 @@ def get_toll_data():
             response_data = response.json()
             logger.info("=== PARSED API RESPONSE ===")
             logger.info(json.dumps(response_data, indent=2))
-            with open('response_data.json', 'w') as f: json.dump(response_data, f, indent=2)
 
             
             if response.status_code != 200:
