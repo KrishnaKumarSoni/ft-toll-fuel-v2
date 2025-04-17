@@ -327,7 +327,8 @@ input::placeholder {
 }
 
 /* Form States */
-#fuel-form {
+#fuel-form,
+#bulk-form {
   display: none;
 }
 
@@ -536,4 +537,51 @@ input::placeholder {
 
 .coordinate-input input {
     width: 100%;
+}
+
+/* Bulk Operations Styles */
+.section-title {
+  font-family: var(--heading-font);
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--text-primary);
+  margin: 1.5rem 0 1rem;
+}
+
+#bulk-password {
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+}
+
+#bulk-file {
+  padding: 0.5rem 0;
+}
+
+#bulk-options {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+#bulk-options.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.password-error {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: none;
+}
+
+.password-error.visible {
+  display: block;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 } 

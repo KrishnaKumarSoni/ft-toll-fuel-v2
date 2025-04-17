@@ -24,6 +24,7 @@
             <div class="tabs">
                 <div id="toll-tab" class="tab active">Toll</div>
                 <div id="fuel-tab" class="tab">Fuel</div>
+                <div id="bulk-tab" class="tab">Bulk Operations</div>
             </div>
             
             <div id="toll-form">
@@ -97,6 +98,31 @@
                     </select>
                 </div>
                 <button id="fuel-search-button" class="primary-button" type="button">Get Fuel Price</button>
+            </div>
+
+            <div id="bulk-form" style="display: none;">
+                <div id="bulk-password-section">
+                    <div class="form-group">
+                        <label for="bulk-password">Enter Password</label>
+                        <input type="password" id="bulk-password" placeholder="Enter password to access bulk operations">
+                        <button id="verify-password" class="primary-button" type="button" style="margin-top: 1rem;">Verify Password</button>
+                    </div>
+                </div>
+                <div id="bulk-options" style="display: none;">
+                    <h3 class="section-title">Bulk Operations</h3>
+                    <div class="form-group">
+                        <label for="bulk-file">Upload File</label>
+                        <input type="file" id="bulk-file" accept=".csv,.xlsx">
+                    </div>
+                    <div class="form-group">
+                        <label for="operation-type">Operation Type</label>
+                        <select id="operation-type">
+                            <option value="toll">Toll Calculation</option>
+                            <option value="fuel">Fuel Price Check</option>
+                        </select>
+                    </div>
+                    <button id="process-bulk" class="primary-button" type="button">Process Bulk Operation</button>
+                </div>
             </div>
         </div>
 

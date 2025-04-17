@@ -456,4 +456,79 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Initialize map
-initMap(); 
+initMap();
+
+// Bulk Operations Password Protection
+const BULK_PASSWORD = 'allmovementnochaos';
+let isPasswordVerified = false;
+
+document.getElementById('bulk-tab').addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    this.classList.add('active');
+    
+    document.getElementById('toll-form').style.display = 'none';
+    document.getElementById('fuel-form').style.display = 'none';
+    document.getElementById('bulk-form').style.display = 'block';
+    
+    // Reset password field and hide options if not verified
+    if (!isPasswordVerified) {
+        document.getElementById('bulk-password').value = '';
+        document.getElementById('bulk-options').style.display = 'none';
+        document.getElementById('bulk-password-section').style.display = 'block';
+    }
+});
+
+document.getElementById('verify-password').addEventListener('click', function() {
+    const passwordInput = document.getElementById('bulk-password');
+    const password = passwordInput.value;
+    
+    // Remove any existing error message
+    const existingError = document.querySelector('.password-error');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    if (password === BULK_PASSWORD) {
+        isPasswordVerified = true;
+        document.getElementById('bulk-password-section').style.display = 'none';
+        const bulkOptions = document.getElementById('bulk-options');
+        bulkOptions.style.display = 'block';
+        setTimeout(() => bulkOptions.classList.add('visible'), 50);
+    } else {
+        isPasswordVerified = false;
+        // Create and show error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'password-error';
+        errorDiv.textContent = 'Incorrect password. Please try again.';
+        passwordInput.parentNode.appendChild(errorDiv);
+        setTimeout(() => errorDiv.classList.add('visible'), 50);
+        
+        // Clear password field
+        passwordInput.value = '';
+        passwordInput.focus();
+    }
+});
+
+// Reset password verification when switching away from bulk tab
+document.getElementById('toll-tab').addEventListener('click', function() {
+    isPasswordVerified = false;
+});
+
+document.getElementById('fuel-tab').addEventListener('click', function() {
+    isPasswordVerified = false;
+});
+
+// Handle bulk file processing
+document.getElementById('process-bulk').addEventListener('click', function() {
+    const fileInput = document.getElementById('bulk-file');
+    const operationType = document.getElementById('operation-type').value;
+    
+    if (!fileInput.files.length) {
+        alert('Please select a file to process');
+        return;
+    }
+    
+    // TODO: Implement file processing logic here
+    console.log('Processing file:', fileInput.files[0].name);
+    console.log('Operation type:', operationType);
+}); 
