@@ -1,6 +1,6 @@
 # FT Toll & Fuel Tracker
 
-A Flask web application to track toll costs and fuel prices for routes in India, using the Lepton Maps API.
+A Flask web application to track toll costs and fuel prices for routes in India.
 
 <img width="1409" alt="image" src="https://github.com/user-attachments/assets/3e0e573d-3df2-4cd5-93f9-10f375178e69" />
 
