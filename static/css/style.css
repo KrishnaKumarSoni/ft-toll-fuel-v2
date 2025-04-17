@@ -1,0 +1,538 @@
+/* Variables */
+:root {
+  --primary-color: #FFC107;
+  --primary-hover: #FFB300;
+  --text-primary: #1a1f36;
+  --text-secondary: #697386;
+  --border-color: #e5e7eb;
+  --background-primary: #ffffff;
+  --background-secondary: #f8fafc;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --nav-height: 64px;
+}
+
+/* Base Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--background-secondary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Layout */
+.main-container {
+  display: flex;
+  min-height: calc(100vh - var(--nav-height));
+  margin-top: var(--nav-height);
+}
+
+/* Navigation */
+.navbar {
+  height: var(--nav-height);
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+  gap: 1rem;
+}
+
+.navbar-logo {
+  height: 32px;
+}
+
+.navbar-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+/* Sidebar */
+.sidebar {
+  width: 400px;
+  padding: 2rem;
+  background: var(--background-primary);
+  border-right: 1px solid var(--border-color);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  gap: 1rem;
+}
+
+.tab {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.tab.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--primary-color);
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 1.25rem;
+  width: 100%;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+input, select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+  background: var(--background-primary);
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+}
+
+select {
+  padding-right: 2.5rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23697386' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1em;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+}
+
+input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Buttons */
+.primary-button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--primary-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+  position: relative;
+}
+
+.primary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.primary-button.loading {
+  color: transparent;
+}
+
+.primary-button.loading::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin: -10px 0 0 -10px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--text-primary);
+  border-radius: 50%;
+  animation: button-loading 0.6s linear infinite;
+}
+
+@keyframes button-loading {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Alert/Popup */
+.alert {
+  position: fixed;
+  top: calc(var(--nav-height) + 1rem);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+  z-index: 1000;
+  box-shadow: var(--shadow-md);
+  display: none;
+}
+
+.alert.show {
+  display: block;
+  animation: alert-slide-down 0.3s ease forwards;
+}
+
+@keyframes alert-slide-down {
+  from {
+    transform: translate(-50%, -100%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+/* Waypoints */
+.waypoint-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.waypoint-input {
+  flex: 1;
+}
+
+.waypoint-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.waypoint-btn:hover {
+  background: var(--background-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.waypoint-btn .material-icons {
+  font-size: 20px;
+}
+
+.remove-waypoint {
+  color: #dc2626;
+}
+
+.remove-waypoint:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+#add-waypoint {
+  margin-top: 0.5rem;
+}
+
+/* Map Section */
+.map-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+#map {
+  flex: 1;
+  min-height: 500px;
+  background: var(--background-secondary);
+  position: relative;
+}
+
+/* Toll Info */
+.toll-info {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 1.25rem;
+  background: var(--background-primary);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 1000;
+  min-width: 250px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.toll-info.visible {
+  opacity: 1;
+  visibility: visible;
+  display: block;
+}
+
+.toll-info h3 {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.toll-info p {
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.total-price {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Form States */
+#fuel-form {
+  display: none;
+}
+
+/* Map Tooltips */
+.marker-tooltip {
+  padding: 0.5rem;
+}
+
+.marker-tooltip h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.marker-tooltip p {
+  margin: 0.25rem 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.marker-tooltip .toll-price {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #dc2626;
+  margin-top: 0.5rem;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+}
+
+.leaflet-popup-content {
+  margin: 0.5rem;
+}
+
+/* Confirmation Dialog */
+.confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--background-primary);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    max-width: 400px;
+    width: 90%;
+    z-index: 1100;
+}
+
+.confirm-dialog p {
+    margin: 0 0 1.5rem 0;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.confirm-dialog-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.confirm-dialog button {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.confirm-dialog .confirm-yes {
+    background: #ef4444;
+    color: white;
+    border: none;
+}
+
+.confirm-dialog .confirm-no {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-color);
+}
+
+.confirm-dialog .confirm-yes:hover {
+    background: #dc2626;
+}
+
+/* Fuel Price Info */
+.fuel-price-info {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 1.5rem;
+    background: var(--background-primary);
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    z-index: 1000;
+    min-width: 250px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.fuel-price-info.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.fuel-price-info h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.fuel-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.fuel-location {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.fuel-type {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.fuel-price {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 0.5rem;
+}
+
+/* Toggle Switch */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+    appearance: none;
+    width: 48px;
+    height: 24px;
+    background: var(--border-color);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+}
+
+.toggle-label input[type="checkbox"]::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s ease;
+}
+
+.toggle-label input[type="checkbox"]:checked {
+    background: var(--primary-color);
+}
+
+.toggle-label input[type="checkbox"]:checked::before {
+    left: 26px;
+}
+
+.toggle-text {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Coordinate Inputs */
+.coordinates-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.coordinate-input {
+    display: flex;
+    flex-direction: column;
+}
+
+.coordinate-input input {
+    width: 100%;
+} 

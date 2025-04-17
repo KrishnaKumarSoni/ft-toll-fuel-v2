@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toll Calculator</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Bricolage+Grotesque:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <img src="{{ url_for('static', filename='logoFT.png') }}" alt="Logo" class="navbar-logo">
+        <div class="navbar-title">Toll & Fuel Tracker by Freight Tiger</div>
+    </nav>
+
+    <div id="validation-alert" class="alert">Please fill in all required fields</div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="tabs">
+                <div id="toll-tab" class="tab active">Toll</div>
+                <div id="fuel-tab" class="tab">Fuel</div>
+            </div>
+            
+            <div id="toll-form">
+                <div class="form-group">
+                    <label for="origin">Origin</label>
+                    <input type="text" id="origin" placeholder="Enter starting location">
+                </div>
+                <div class="form-group">
+                    <label for="waypoints">Waypoints</label>
+                    <div id="waypoints-container">
+                        
+                    </div>
+                    <button type="button" id="add-waypoint" class="waypoint-btn">
+                        <span class="material-icons">add</span>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label for="destination">Destination</label>
+                    <input type="text" id="destination" placeholder="Enter destination">
+                </div>
+                <div class="form-group">
+                    <label for="journey-type">Vehicle Type</label>
+                    <select id="journey-type">
+                        <option value="4TO6AX_SJ">4 to 6 Axle Vehicle - Single Journey</option>
+                        <option value="4TO6AX_RJ">4 to 6 Axle Vehicle - Return Journey</option>
+                        <option value="4TO6AX_MP">4 to 6 Axle Vehicle - Monthly Journey</option>
+                        <option value="HCM_EME_SJ">HCM/EME Vehicle - Single Journey</option>
+                        <option value="HCM_EME_RJ">HCM/EME Vehicle - Return Journey</option>
+                        <option value="HCM_EME_MP">HCM/EME Vehicle - Monthly Journey</option>
+                        <option value="7AX_SJ">7 or More Axle Vehicle - Single Journey</option>
+                        <option value="7AX_RJ">7 or More Axle Vehicle - Return Journey</option>
+                        <option value="7AX_MP">7 or More Axle Vehicle - Monthly Journey</option>
+                    </select>
+                </div>
+                <button id="search-button" class="primary-button" type="button">Calculate Toll</button>
+            </div>
+
+            <div id="fuel-form">
+                <div class="form-group">
+                    <div class="toggle-container">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="coordinates-toggle">
+                            <span class="toggle-text">Use Coordinates</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="location-input" class="form-group">
+                    <label for="fuel-location">Location</label>
+                    <input type="text" id="fuel-location" placeholder="Enter location">
+                </div>
+                
+                <div id="coordinates-input" class="form-group" style="display: none;">
+                    <div class="coordinates-container">
+                        <div class="coordinate-input">
+                            <label for="fuel-lat">Latitude</label>
+                            <input type="number" id="fuel-lat" step="any" placeholder="Enter latitude">
+                        </div>
+                        <div class="coordinate-input">
+                            <label for="fuel-lng">Longitude</label>
+                            <input type="number" id="fuel-lng" step="any" placeholder="Enter longitude">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fuel-type">Fuel Type</label>
+                    <select id="fuel-type">
+                        <option value="petrol">Petrol</option>
+                        <option value="diesel">Diesel</option>
+                    </select>
+                </div>
+                <button id="fuel-search-button" class="primary-button" type="button">Get Fuel Price</button>
+            </div>
+        </div>
+
+        <div class="map-section">
+            <div id="map"></div>
+            <div class="toll-info">
+                <h3 id="info-title">Toll Information</h3>
+                <p id="toll-count-label">Total Toll Booths: <span id="total-tolls">0</span></p>
+                <p id="price-label">Total Price: <span id="total-price" class="total-price">₹0</span></p>
+            </div>
+            <div class="fuel-price-info">
+                <div class="fuel-details">
+                    <div class="fuel-location"></div>
+                    <div class="fuel-type"></div>
+                    <div class="fuel-price"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 
