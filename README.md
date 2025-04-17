@@ -2,6 +2,9 @@
 
 A Flask web application to track toll costs and fuel prices for routes in India, using the Lepton Maps API.
 
+![Uploading image.png…]()
+
+
 ## Features
 
 - Calculate toll costs between origin and destination
