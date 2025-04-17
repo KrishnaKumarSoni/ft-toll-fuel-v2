@@ -1,0 +1,11 @@
+origin,way_points,destination,journey_type
+Mumbai,"Pune,Nashik",Delhi,4TO6AX_SJ
+Bangalore,,Chennai,7AX_RJ
+Delhi,"Agra,Gwalior",Bhopal,HCM_EME_SJ
+Ahmedabad,"Udaipur,Jaipur",Delhi,4TO6AX_MP
+Chennai,"Hyderabad,Nagpur",Kolkata,7AX_SJ
+Jaipur,Ajmer,Udaipur,HCM_EME_RJ
+Mumbai,"Pune,Kolhapur",Bangalore,4TO6AX_SJ
+Delhi,"Chandigarh,Ludhiana",Amritsar,7AX_MP
+Lucknow,"Kanpur,Varanasi",Patna,HCM_EME_MP
+Hyderabad,"Vijayawada,Chennai",Bangalore,4TO6AX_RJ 

@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, make_response
 import requests
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 app = Flask(__name__)
@@ -77,6 +77,100 @@ SAMPLE_FUEL_DATA = {
     }
 }
 
+# Secret key for session management
+app.secret_key = os.urandom(24)
+
+# Secure password for bulk operations - in production, use environment variable
+BULK_PASSWORD = "allmovementnochaos"
+
+# Common city name corrections
+CITY_CORRECTIONS = {
+    'belary': 'bellary',
+    'banglore': 'bangalore',
+    'bengaluru': 'bangalore',
+    'bombay': 'mumbai',
+    'calcutta': 'kolkata',
+    'poona': 'pune'
+}
+
+def is_coordinates(location):
+    """Check if input is coordinates (either string or object format)."""
+    if isinstance(location, dict):
+        # Handle {lat: number, lng: number} format
+        lat = location.get('lat')
+        lng = location.get('lng')
+        if lat is not None and lng is not None:
+            try:
+                lat, lng = float(lat), float(lng)
+                return -90 <= lat <= 90 and -180 <= lng <= 180
+            except (ValueError, TypeError):
+                return False
+        return False
+    
+    if not isinstance(location, str):
+        return False
+        
+    # Handle "lat,lng" string format
+    parts = location.strip('"').split(',')
+    if len(parts) != 2:
+        return False
+    try:
+        lat, lng = map(float, parts)
+        return -90 <= lat <= 90 and -180 <= lng <= 180
+    except ValueError:
+        return False
+
+def parse_coordinates(location):
+    """Parse coordinates from string or object format to 'lat,lng' string."""
+    if isinstance(location, dict):
+        try:
+            lat = float(location.get('lat', ''))
+            lng = float(location.get('lng', ''))
+            return f"{lat},{lng}"
+        except (ValueError, TypeError):
+            return None
+            
+    if isinstance(location, str):
+        try:
+            lat, lng = map(float, location.strip('"').split(','))
+            return f"{lat},{lng}"
+        except (ValueError, AttributeError):
+            return None
+            
+    return None
+
+def process_location(location):
+    """Process location (either city name, coordinate string, or coordinate object)."""
+    if not location:
+        return None
+        
+    if is_coordinates(location):
+        return parse_coordinates(location)
+        
+    if isinstance(location, str):
+        return CITY_CORRECTIONS.get(location.lower(), location)
+        
+    return None
+
+def process_waypoints(waypoints):
+    """Process waypoints list (cities, coordinate strings, or coordinate objects)."""
+    if not waypoints:
+        return []
+    
+    # If waypoints is a string (comma-separated), split it
+    if isinstance(waypoints, str):
+        waypoints = [wp.strip() for wp in waypoints.strip('"').split(',')]
+    
+    # Process each waypoint
+    processed = []
+    for wp in waypoints:
+        if wp:
+            processed_wp = process_location(wp)
+            if processed_wp:
+                processed.append(processed_wp)
+    
+    return processed
+
 @app.route('/')
 def index():
     return render_template('index.html', google_maps_api_key=GOOGLE_MAPS_API_KEY)
@@ -88,21 +182,42 @@ def get_toll_data():
     logger.info("=== INCOMING REQUEST DATA ===")
     logger.info(json.dumps(data, indent=2))
     
-    origin = data.get('origin', '').strip()
-    destination = data.get('destination', '').strip()
+    # Extract and validate data
+    if not isinstance(data, dict):
+        return jsonify({'error': 'Invalid request data format'}), 400
+        
+    origin = str(data.get('origin', '')).strip()
+    destination = str(data.get('destination', '')).strip()
     waypoints = data.get('waypoints', [])
     journey_type = data.get('journey_type')
     
-    logger.info("=== PARSED REQUEST DATA ===")
-    logger.info(f"Origin: {origin}")
-    logger.info(f"Destination: {destination}")
-    logger.info(f"Waypoints: {waypoints}")
-    logger.info(f"Journey Type: {journey_type}")
+    # Process locations
+    processed_origin = process_location(origin)
+    processed_destination = process_location(destination)
+    processed_waypoints = process_waypoints(waypoints)
     
-    # Input validation
-    if not origin or not destination:
-        return jsonify({'error': 'Origin and destination are required'}), 400
-        
+    if not processed_origin or not processed_destination:
+        return jsonify({'error': 'Invalid origin or destination format'}), 400
+    
+    logger.info("=== PROCESSED LOCATIONS ===")
+    logger.info(f"Processed Origin: {processed_origin}")
+    logger.info(f"Processed Destination: {processed_destination}")
+    logger.info(f"Processed Waypoints: {processed_waypoints}")
+    
+    # Format locations for API
+    params = {
+        'origin': processed_origin,
+        'destination': processed_destination,
+        'journey_type': journey_type,
+        'include_route': True,
+        'include_route_metadata': True,
+        'include_booths': True,
+        'include_booths_locations': True
+    }
+    
+    if processed_waypoints:
+        params['waypoints'] = '|'.join(processed_waypoints)
+
     # If no API key, use sample data
     if not API_KEY:
         logger.warning("No API key found, using sample data")
@@ -127,41 +242,11 @@ def get_toll_data():
     # Build API URL
     api_url = "https://api.leptonmaps.com/v1/toll"
     
-    # Common city name corrections
-    city_corrections = {
-        'belary': 'bellary',
-        'banglore': 'bangalore',
-        'bengaluru': 'bangalore',
-        'bombay': 'mumbai',
-        'calcutta': 'kolkata',
-        'poona': 'pune'
-    }
-    
-    # Sanitize input
-    origin = city_corrections.get(origin.lower(), origin)
-    destination = city_corrections.get(destination.lower(), destination)
-    waypoints = [city_corrections.get(wp.lower(), wp) for wp in waypoints]
-    
     # 2. Log location formatting
     logger.info("=== ORIGINAL LOCATIONS ===")
     logger.info(f"Original Origin: {origin}")
     logger.info(f"Original Destination: {destination}")
     logger.info(f"Original Waypoints: {waypoints}")
-    
-    # Format locations - try without state names first
-    params = {
-        'origin': origin,
-        'destination': destination,
-        'journey_type': journey_type,
-        'include_route': True,
-        'include_route_metadata': True,
-        'include_booths': True,
-        'include_booths_locations': True
-    }
-    
-    if waypoints:
-        # Format waypoints as pipe-separated string
-        params['waypoints'] = '|'.join(str(wp).strip() for wp in waypoints)
     
     logger.info("=== API REQUEST DETAILS ===")
     logger.info(f"API URL: {api_url}")
@@ -187,25 +272,40 @@ def get_toll_data():
         logger.info(f"Raw response content: {raw_response}")
         logger.info(f"Response length: {len(raw_response)}")
         
+        # Handle non-200 responses first
+        if response.status_code != 200:
+            error_message = raw_response.strip()
+            content_type = response.headers.get('content-type', '')
+            
+            # Try to extract error message from JSON if possible
+            if 'application/json' in content_type:
+                try:
+                    error_data = response.json()
+                    error_message = error_data.get('message', error_data.get('error', error_message))
+                except json.JSONDecodeError:
+                    pass
+            
+            # If error message is empty, provide a default
+            if not error_message:
+                error_message = f"API request failed with status code {response.status_code}"
+            
+            logger.error(f"API Error: {error_message}")
+            return jsonify({
+                'error': error_message,
+                'status_code': response.status_code
+            }), response.status_code
+        
+        # Handle empty response
         if not raw_response or raw_response.isspace():
             logger.error("Empty response from API")
             return jsonify({'error': 'Empty response received from API'}), 500
-            
+        
+        # Parse JSON response for successful requests
         try:
             response_data = response.json()
             logger.info("=== PARSED API RESPONSE ===")
             logger.info(json.dumps(response_data, indent=2))
 
-            
-            if response.status_code != 200:
-                error_msg = response_data.get('message', 'API request failed')
-                logger.error(f"API Error: {error_msg}")
-                return jsonify({'error': error_msg}), response.status_code
-                
-            if not isinstance(response_data, dict):
-                logger.error(f"Unexpected response format. Expected dict, got {type(response_data)}")
-                return jsonify({'error': 'Invalid response format from API'}), 500
-                
             # Process toll booths
             toll_booths = []
             total_toll = 0
@@ -430,6 +530,39 @@ def get_fuel_price():
     except requests.exceptions.RequestException as e:
         logger.error(f"Request failed: {str(e)}")
         return jsonify({'error': 'Failed to fetch fuel price'}), 500
+
+@app.route('/verify_bulk_password', methods=['POST'])
+def verify_bulk_password():
+    data = request.get_json()
+    password = data.get('password')
+    
+    if not password:
+        return jsonify({'success': False, 'message': 'Password is required'}), 400
+    
+    if password == BULK_PASSWORD:
+        # Create response object
+        response = make_response(jsonify({'success': True, 'message': 'Password verified'}))
+        
+        # Set secure cookie with 24-hour expiry
+        expires = datetime.now() + timedelta(days=1)
+        response.set_cookie(
+            'bulk_access',
+            'verified',
+            expires=expires,
+            httponly=True,
+            secure=True,  # Only send over HTTPS
+            samesite='Strict'
+        )
+        
+        return response
+    
+    return jsonify({'success': False, 'message': 'Incorrect password'}), 401
+
+@app.route('/check_bulk_access')
+def check_bulk_access():
+    # Check if the bulk_access cookie exists and is valid
+    bulk_access = request.cookies.get('bulk_access')
+    return jsonify({'verified': bulk_access == 'verified'})
 
 if __name__ == '__main__':
     app.run(debug=True) 

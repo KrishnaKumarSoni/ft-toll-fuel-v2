@@ -102,26 +102,105 @@
 
             <div id="bulk-form" style="display: none;">
                 <div id="bulk-password-section">
-                    <div class="form-group">
-                        <label for="bulk-password">Enter Password</label>
-                        <input type="password" id="bulk-password" placeholder="Enter password to access bulk operations">
-                        <button id="verify-password" class="primary-button" type="button" style="margin-top: 1rem;">Verify Password</button>
+                    <div class="password-container">
+                        <div class="lock-icon">
+                            <span class="material-icons">lock</span>
+                        </div>
+                        <h3 class="section-title">Secure Access Required</h3>
+                        <p class="section-description">Enter password to access bulk toll calculation</p>
+                        <div class="form-group">
+                            <div class="password-input-group">
+                                <input type="password" id="bulk-password" placeholder="Enter password" autocomplete="off">
+                                <button type="button" class="toggle-password">
+                                    <span class="material-icons">visibility_off</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="verify-password" class="primary-button" type="button">Verify Access</button>
                     </div>
                 </div>
+
                 <div id="bulk-options" style="display: none;">
-                    <h3 class="section-title">Bulk Operations</h3>
-                    <div class="form-group">
-                        <label for="bulk-file">Upload File</label>
-                        <input type="file" id="bulk-file" accept=".csv,.xlsx">
+                    <div class="bulk-header">
+                        <h3 class="section-title">Bulk Toll Calculator</h3>
                     </div>
-                    <div class="form-group">
-                        <label for="operation-type">Operation Type</label>
-                        <select id="operation-type">
-                            <option value="toll">Toll Calculation</option>
-                            <option value="fuel">Fuel Price Check</option>
-                        </select>
+
+                    <div class="upload-container">
+                        <div class="dropzone" id="file-dropzone">
+                            <input type="file" id="bulk-file" accept=".csv" class="file-input" hidden>
+                            <div class="dropzone-content">
+                                <span class="material-icons">upload_file</span>
+                                <p>Drag and drop your CSV file here</p>
+                                <p class="dropzone-subtitle">or</p>
+                                <button type="button" class="secondary-button" id="browse-files">Browse Files</button>
+                            </div>
+                            <div class="file-info" style="display: none;">
+                                <span class="material-icons">description</span>
+                                <span class="file-name"></span>
+                                <button type="button" class="remove-file">
+                                    <span class="material-icons">close</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <button id="process-bulk" class="primary-button" type="button">Process Bulk Operation</button>
+
+                    <div class="validation-progress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <p class="progress-text">Validating file...</p>
+                    </div>
+
+                    <div class="processing-progress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <p class="progress-text">Processing records: <span class="progress-count">0/0</span></p>
+                    </div>
+
+                    <button id="process-bulk" class="primary-button" type="button" disabled>Process Toll Charges</button>
+
+                    <div class="download-results">
+                        <h4>
+                            <span class="material-icons">task_alt</span>
+                            Processing Complete
+                        </h4>
+                        <p>Your toll charges have been calculated. Click below to download the results.</p>
+                        <button type="button" class="download-button" id="download-results">
+                            <span class="material-icons">download</span>
+                            Download Results
+                        </button>
+                    </div>
+
+                    <div class="instructions-section">
+                        <div class="divider"></div>
+                        <h4>How to Use Bulk Processing</h4>
+                        <ol class="instructions-list">
+                            <li>Download our <a href="/static/sample/toll_calculator_template.csv" class="sample-link">sample CSV template</a></li>
+                            <li>Your CSV file must include these columns:
+                                <ul>
+                                    <li><code>origin</code> - Starting point (city name or coordinates)</li>
+                                    <li><code>destination</code> - End point (city name or coordinates)</li>
+                                    <li><code>way_points</code> - Optional intermediate points (comma-separated)</li>
+                                    <li><code>journey_type</code> - Type of journey (see below)</li>
+                                </ul>
+                            </li>
+                            <li>Supported formats:
+                                <ul>
+                                    <li>City names: <code>Mumbai</code>, <code>Delhi</code></li>
+                                    <li>Coordinates: <code>19.0760,72.8777</code> (latitude,longitude)</li>
+                                    <li>Multiple waypoints: <code>Pune, Nashik</code> or <code>18.5204,73.8567, 19.9975,73.7898</code></li>
+                                </ul>
+                            </li>
+                            <li>Journey types:
+                                <ul>
+                                    <li><code>4TO6AX_SJ/RJ/MP</code> - 4 to 6 Axle Vehicle (Single/Return/Monthly)</li>
+                                    <li><code>7AX_SJ/RJ/MP</code> - 7 or More Axle Vehicle (Single/Return/Monthly)</li>
+                                    <li><code>HCM_EME_SJ/RJ/MP</code> - HCM/EME Vehicle (Single/Return/Monthly)</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
                 </div>
             </div>
         </div>
