@@ -145,7 +145,7 @@ function validateInputs() {
         return false;
     }
 
-    // Check if no waypoints are entered
+    // Check if no via points are entered
     if (waypoints.length === 0) {
         showAlert('Please enter at least one via point');
         return false;
@@ -269,18 +269,26 @@ function addWaypointInput() {
     const waypointDiv = document.createElement('div');
     waypointDiv.className = 'waypoint-container';
     
+    // Check if this is the first via point
+    const isFirstViaPoint = container.children.length === 0;
+    
     waypointDiv.innerHTML = `
         <input type="text" class="waypoint-input" placeholder="Enter via point">
+        ${!isFirstViaPoint ? `
         <button type="button" class="waypoint-btn remove-waypoint">
             <span class="material-icons">remove</span>
         </button>
+        ` : ''}
     `;
     
     container.appendChild(waypointDiv);
     
-    waypointDiv.querySelector('.remove-waypoint').addEventListener('click', function() {
-        container.removeChild(waypointDiv);
-    });
+    // Only add remove event listener if it's not the first via point
+    if (!isFirstViaPoint) {
+        waypointDiv.querySelector('.remove-waypoint').addEventListener('click', function() {
+            container.removeChild(waypointDiv);
+        });
+    }
 }
 
 // Handle coordinates toggle
@@ -490,8 +498,10 @@ document.addEventListener('DOMContentLoaded', function() {
         addWaypointButton.addEventListener('click', addWaypointInput);
     }
     
-    // Add initial waypoint
-    addWaypointInput();
+    // Add initial via point without remove button
+    if (document.getElementById('waypoints-container').children.length === 0) {
+        addWaypointInput();
+    }
 });
 
 // Remove the old event listeners
