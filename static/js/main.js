@@ -265,30 +265,24 @@ async function calculateToll() {
 }
 
 function addWaypointInput() {
-    const container = document.getElementById('waypoints-container');
-    const waypointDiv = document.createElement('div');
-    waypointDiv.className = 'waypoint-container';
-    
-    // Check if this is the first via point
-    const isFirstViaPoint = container.children.length === 0;
-    
-    waypointDiv.innerHTML = `
-        <input type="text" class="waypoint-input" placeholder="Enter via point">
-        ${!isFirstViaPoint ? `
-        <button type="button" class="waypoint-btn remove-waypoint">
-            <span class="material-icons">remove</span>
-        </button>
-        ` : ''}
-    `;
-    
-    container.appendChild(waypointDiv);
-    
-    // Only add remove event listener if it's not the first via point
-    if (!isFirstViaPoint) {
-        waypointDiv.querySelector('.remove-waypoint').addEventListener('click', function() {
-            container.removeChild(waypointDiv);
-        });
-    }
+    const container = document.createElement('div');
+    container.className = 'waypoint-container';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'waypoint';
+    input.className = 'waypoint-input';
+    input.placeholder = 'Enter waypoint';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'remove-waypoint';
+    removeBtn.textContent = 'Remove';
+    removeBtn.addEventListener('click', removeWaypoint);
+
+    container.appendChild(input);
+    container.appendChild(removeBtn);
+    document.getElementById('waypoints').appendChild(container);
 }
 
 // Handle coordinates toggle
@@ -498,10 +492,8 @@ document.addEventListener('DOMContentLoaded', function() {
         addWaypointButton.addEventListener('click', addWaypointInput);
     }
     
-    // Add initial via point without remove button
-    if (document.getElementById('waypoints-container').children.length === 0) {
-        addWaypointInput();
-    }
+    // Add initial waypoint input
+    addWaypointInput();
 });
 
 // Remove the old event listeners
@@ -1215,5 +1207,12 @@ async function processBulkFile() {
     } catch (error) {
         console.error('Processing failed:', error);
         showAlert('Failed to process file. Please try again.');
+    }
+}
+
+function removeWaypoint(event) {
+    const waypointContainer = event.target.closest('.waypoint-container');
+    if (waypointContainer) {
+        waypointContainer.remove();
     }
 } 

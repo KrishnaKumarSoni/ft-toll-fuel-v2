@@ -271,8 +271,34 @@ input::placeholder {
   border-color: #dc2626;
 }
 
+/* Move plus button to same line */
 #add-waypoint {
-  margin-top: 0.5rem;
+  margin-top: 0;
+  margin-left: 0.5rem;
+}
+
+/* Container for via points section */
+.via-points-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#waypoints-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Add button container */
+.add-waypoint-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-waypoint-container .waypoint-input {
+  flex: 1;
 }
 
 /* Map Section */
