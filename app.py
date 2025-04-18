@@ -4,12 +4,17 @@ import os
 import json
 from datetime import datetime, timedelta
 import logging
+import gzip
+from functools import partial
 
 app = Flask(__name__)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Compression threshold (1MB)
+COMPRESSION_THRESHOLD = 1024 * 1024
 
 # API Keys
 API_KEY = os.environ.get('LEPTON_API_KEY')
@@ -170,6 +175,45 @@ def process_waypoints(waypoints):
                 processed.append(processed_wp)
     
     return processed
+
+def compress_response(response_data):
+    """Compress response data if it exceeds threshold"""
+    json_str = json.dumps(response_data)
+    if len(json_str) > COMPRESSION_THRESHOLD:
+        compressed = gzip.compress(json_str.encode('utf-8'))
+        response = make_response(compressed)
+        response.headers['Content-Encoding'] = 'gzip'
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    return jsonify(response_data)
+
+def simplify_coordinates(coords, tolerance=0.00001):
+    """Simplify route coordinates using Douglas-Peucker algorithm"""
+    if len(coords) <= 2:
+        return coords
+        
+    def point_line_distance(point, start, end):
+        if start == end:
+            return ((point[0] - start[0]) ** 2 + (point[1] - start[1]) ** 2) ** 0.5
+            
+        n = abs((end[1] - start[1]) * point[0] - (end[0] - start[0]) * point[1] + end[0] * start[1] - end[1] * start[0])
+        d = ((end[1] - start[1]) ** 2 + (end[0] - start[0]) ** 2) ** 0.5
+        return n / d if d > 0 else 0
+        
+    dmax = 0
+    index = 0
+    for i in range(1, len(coords) - 1):
+        d = point_line_distance(coords[i], coords[0], coords[-1])
+        if d > dmax:
+            index = i
+            dmax = d
+            
+    if dmax > tolerance:
+        results1 = simplify_coordinates(coords[:index + 1], tolerance)
+        results2 = simplify_coordinates(coords[index:], tolerance)
+        return results1[:-1] + results2
+    else:
+        return [coords[0], coords[-1]]
 
 @app.route('/')
 def index():
@@ -387,21 +431,24 @@ def get_toll_data():
                 route_coordinates = [booth['coords'] for booth in transformed_booths]
                 logger.info(f"Created route with {len(route_coordinates)} points through toll booths")
             
+            # Simplify route coordinates
+            simplified_route_coordinates = simplify_coordinates(route_coordinates)
+            
             # Prepare final response
             result = {
                 'toll_count': len(transformed_booths),
                 'total_toll_price': total_toll,
                 'toll_booths': transformed_booths,
-                'route_coordinates': route_coordinates,
+                'route_coordinates': simplified_route_coordinates,
                 'waypoint_coords': [],  # We'll handle waypoints later if needed
-                'origin_coords': route_coordinates[0] if route_coordinates else None,
-                'destination_coords': route_coordinates[-1] if route_coordinates else None
+                'origin_coords': simplified_route_coordinates[0] if simplified_route_coordinates else None,
+                'destination_coords': simplified_route_coordinates[-1] if simplified_route_coordinates else None
             }
             
             logger.info("=== FINAL RESPONSE ===")
             logger.info(json.dumps(result, indent=2))
             
-            return jsonify(result)
+            return compress_response(result)
             
         except json.JSONDecodeError as e:
             logger.error(f"JSON Decode Error: {str(e)}")
@@ -439,7 +486,7 @@ def get_fuel_price():
     # If no API key, use sample data
     if not API_KEY:
         logger.warning("No API key found, using sample fuel data")
-        return jsonify({location.lower(): {
+        return compress_response({location.lower(): {
             f'{fuel_type}_price': 102.50,
             'diesel_price': None if fuel_type == 'petrol' else 95.20,
             'petrol_price': None if fuel_type == 'diesel' else 102.50
@@ -513,7 +560,7 @@ def get_fuel_price():
                     if first_key != key:
                         response_data = {key: response_data[first_key]}
                         
-                return jsonify(response_data)
+                return compress_response(response_data)
             except json.JSONDecodeError:
                 logger.error(f"Invalid JSON in successful response: {response.text}")
                 return jsonify({'error': 'Invalid response from fuel price API'}), 500
