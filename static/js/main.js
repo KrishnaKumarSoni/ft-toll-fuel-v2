@@ -147,9 +147,8 @@ function validateInputs() {
 
     // Check if no waypoints are entered
     if (waypoints.length === 0) {
-        return confirm(
-            'You haven\'t entered any waypoints. Without waypoints, there might be multiple possible routes between your origin and destination, which could affect toll calculations.\n\nAre you sure you want to continue?'
-        );
+        showAlert('Please enter at least one via point');
+        return false;
     }
     
     return true;
@@ -271,7 +270,7 @@ function addWaypointInput() {
     waypointDiv.className = 'waypoint-container';
     
     waypointDiv.innerHTML = `
-        <input type="text" class="waypoint-input" placeholder="Enter waypoint">
+        <input type="text" class="waypoint-input" placeholder="Enter via point">
         <button type="button" class="waypoint-btn remove-waypoint">
             <span class="material-icons">remove</span>
         </button>
@@ -785,7 +784,7 @@ function parseCSV(text) {
 // Validate CSV data with enhanced checks
 function validateCSVData(data) {
     const errors = [];
-    const requiredColumns = ['origin', 'destination', 'journey_type'];
+    const requiredColumns = ['origin', 'destination', 'journey_type', 'way_points'];
     
     if (!data || data.length < 2) {
         return { isValid: false, errors: ['File is empty or contains no data rows'] };
@@ -842,12 +841,18 @@ function validateCSVData(data) {
             }
         }
         
-        // Validate waypoints if present
-        if (waypointsIdx >= 0 && row[waypointsIdx]) {
-            const waypoints = row[waypointsIdx].split(',').map(wp => wp.trim());
-            for (let wp of waypoints) {
-                if (isCoordinates(wp) && !validateCoordinates(wp)) {
-                    rowErrors.push(`Invalid waypoint coordinates format: ${wp}`);
+        // Validate waypoints - make at least one via point mandatory
+        if (!row[waypointsIdx] || !row[waypointsIdx].trim()) {
+            rowErrors.push('At least one via point is required');
+        } else {
+            const waypoints = row[waypointsIdx].split(',').map(wp => wp.trim()).filter(wp => wp);
+            if (waypoints.length === 0) {
+                rowErrors.push('At least one via point is required');
+            } else {
+                for (let wp of waypoints) {
+                    if (isCoordinates(wp) && !validateCoordinates(wp)) {
+                        rowErrors.push(`Invalid via point coordinates format: ${wp}`);
+                    }
                 }
             }
         }

@@ -33,7 +33,7 @@
                     <input type="text" id="origin" placeholder="Enter starting location">
                 </div>
                 <div class="form-group">
-                    <label for="waypoints">Waypoints</label>
+                    <label for="waypoints">Via Points</label>
                     <div id="waypoints-container">
                         
                     </div>
@@ -181,7 +181,7 @@
                                 <ul>
                                     <li><code>origin</code> - Starting point (city name or coordinates)</li>
                                     <li><code>destination</code> - End point (city name or coordinates)</li>
-                                    <li><code>way_points</code> - Optional intermediate points (comma-separated)</li>
+                                    <li><code>way_points</code> - At least one via point required (comma-separated)</li>
                                     <li><code>journey_type</code> - Type of journey (see below)</li>
                                 </ul>
                             </li>
@@ -189,7 +189,7 @@
                                 <ul>
                                     <li>City names: <code>Mumbai</code>, <code>Delhi</code></li>
                                     <li>Coordinates: <code>19.0760,72.8777</code> (latitude,longitude)</li>
-                                    <li>Multiple waypoints: <code>Pune, Nashik</code> or <code>18.5204,73.8567, 19.9975,73.7898</code></li>
+                                    <li>Multiple via points: <code>Pune, Nashik</code> or <code>18.5204,73.8567, 19.9975,73.7898</code></li>
                                 </ul>
                             </li>
                             <li>Journey types:
